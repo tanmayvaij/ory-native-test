@@ -28,19 +28,6 @@ services:
     command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes
     restart: "no"
 
-  # kratos-cleanup-authman:
-  #   image: oryd/kratos:latest
-  #   hostname: kratos-cleanup-authman
-  #   container_name: kratos-cleanup-authman
-  #   depends_on:
-  #     - postgres-authman
-  #   environment:
-  #     - DSN=postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}?sslmode=disable&max_conns=20&max_idle_conns=4
-  #   volumes:
-  #     - ./kratos:/etc/config/kratos
-  #   command: cleanup sql -e
-  #   restart: unless-stopped
-
   kratos-authman:
     image: oryd/kratos:v1.1.0
     hostname: kratos-authman
@@ -64,7 +51,7 @@ services:
     depends_on:
       - kratos-migrate-authman
     environment:
-      - KRATOS_PUBLIC_URL=http://kratos-authman:4433/ # network within container ignores port declaration dont use exposed port
+      - KRATOS_PUBLIC_URL=http://kratos-authman:4433/
       - KRATOS_BROWSER_URL=http://127.0.0.1:${KRATOS_EXPOSE_PORT}/
     ports:
       - ${KRATOS_UI_EXPOSE_PORT}:3000
