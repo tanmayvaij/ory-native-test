@@ -1,0 +1,138 @@
+# changed 4455 to 3000 as it is the port for ui
+# changed 4433 to 3433
+# keep docker ports intact
+# changed local ports that were exported
+# change dns from memory to something else, its better to use dns from env
+
+version: v1.1.0
+
+# dsn: memory
+
+serve:
+  public:
+    base_url: http://127.0.0.1:3433/
+    cors:
+      enabled: true
+      allowed_origins:
+        - http://127.0.0.1:4000
+        - http://localhost:4000
+  admin:
+    base_url: http://kratos-authman:4434/
+
+selfservice:
+  default_browser_return_url: http://127.0.0.1:3000/
+  allowed_return_urls:
+    - http://127.0.0.1:3000
+
+  methods:
+    code:
+      enabled: true
+      config:
+        lifespan: 15m
+    password:
+      enabled: true
+
+  flows:
+    error:
+      ui_url: http://127.0.0.1:3000/error
+
+    settings:
+      ui_url: http://127.0.0.1:3000/settings
+      privileged_session_max_age: 15m
+
+    recovery:
+      enabled: true
+      lifespan: 15m
+      use: code
+      notify_unknown_recipients: true
+      ui_url: http://127.0.0.1:3000/recovery
+      after:
+        hooks:
+          - hook: revoke_active_sessions
+
+    verification:
+      enabled: true
+      ui_url: http://127.0.0.1:3000/verification
+      after:
+        default_browser_return_url: http://127.0.0.1:3000/
+
+    logout:
+      after:
+        default_browser_return_url: http://127.0.0.1:3000/login
+
+    login:
+      ui_url: http://127.0.0.1:3000/login
+      lifespan: 10m
+
+    registration:
+      lifespan: 10m
+      ui_url: http://127.0.0.1:3000/registration
+      after:
+        password:
+          hooks:
+            # - hook: web_hook
+            #   config:
+            #     url: http://host.docker.internal:4000/api/v1/web-hooks/ory-identities/check-user-in-invite
+            #     method: POST
+            #     body: base64://ZnVuY3Rpb24oY3R4KSB7CiBlbWFpbDogY3R4LmlkZW50aXR5LnRyYWl0cy5lbWFpbCwKIGlkOiBjdHguaWRlbnRpdHkuaWQsCiBjdHg6IGN0eAp9
+            #     can_interrupt: true
+            - hook: web_hook
+              config:
+                url: http://host.docker.internal:4000/api/v1/web-hooks/ory-identities/generate-key-for-registered-user
+                method: POST
+                body: base64://ZnVuY3Rpb24oY3R4KSB7CiBlbWFpbDogY3R4LmlkZW50aXR5LnRyYWl0cy5lbWFpbCwKIGlkOiBjdHguaWRlbnRpdHkuaWQsCiBjdHg6IGN0eAp9
+                response:
+                  ignore: false
+            - hook: web_hook
+              config:
+                url: http://host.docker.internal:4000/api/v1/web-hooks/ory-identities/user-registered-success
+                method: POST
+                body: base64://ZnVuY3Rpb24oY3R4KSB7CiBlbWFpbDogY3R4LmlkZW50aXR5LnRyYWl0cy5lbWFpbCwKIGlkOiBjdHguaWRlbnRpdHkuaWQsCiBjdHg6IGN0eAp9
+                response:
+                  ignore: true
+            # - hook: web_hook
+            #   config:
+            #     url: http://host.docker.internal:4000/api/v1/web-hooks/ory-identities/check-referral-code
+            #     method: POST
+            #     body: base64://ZnVuY3Rpb24oY3R4KSB7CiBlbWFpbDogY3R4LmlkZW50aXR5LnRyYWl0cy5lbWFpbCwKIGlkOiBjdHguaWRlbnRpdHkuaWQsCiBjdHg6IGN0eAp9
+            #     response:
+            #       ignore: true
+            - hook: session
+
+log:
+  level: debug
+  format: json
+  leak_sensitive_values: true
+
+secrets:
+  cookie:
+    - PLEASE-CHANGE-ME-I-AM-VERY-INSECURE
+  cipher:
+    - 32-LONG-SECRET-NOT-SECURE-AT-ALL
+
+ciphers:
+  algorithm: xchacha20-poly1305
+
+hashers:
+  algorithm: bcrypt
+  bcrypt:
+    cost: 8
+
+identity:
+  default_schema_id: default
+  schemas:
+    - id: default
+      url: file:///etc/config/kratos/identity.schema.json
+
+session:
+  lifespan: "336h"
+  earliest_possible_extend: "12h"
+
+courier:
+  smtp:
+    connection_uri: smtp://AKIARQTSXMQH7KO3QQKJ:BNYCFRYJE8TAVCXcLsRa0ZFnIqUU5AtbaXZ0APoZNDr0@email-smtp.ap-south-1.amazonaws.com:587/
+    from_address: info@authman.com
+    from_name: authman
+
+feature_flags:
+  use_continue_with_transitions: true
