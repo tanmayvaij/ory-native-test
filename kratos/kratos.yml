@@ -9,12 +9,13 @@ serve:
         - http://127.0.0.1:4000
         - http://localhost:4000
   admin:
-    base_url: http://kratos-authman:4434/
+    base_url: http://kratos-tanmayvaij:4434/
 
 selfservice:
   default_browser_return_url: http://127.0.0.1:3000/
   allowed_return_urls:
     - http://127.0.0.1:3000
+    - exp://localhost:8081
 
   methods:
     code:
@@ -89,11 +90,12 @@ session:
   lifespan: "336h"
   earliest_possible_extend: "12h"
 
-courier:
-  smtp:
-    connection_uri: smtp://some-address@email-smtp.ap-south-1.amazonaws.com:587/
-    from_address: info@authman.com
-    from_name: authman
+# courier:
+#   smtp:
+#     connection_uri: smtp://some-address@email-smtp.ap-south-1.amazonaws.com:587/
+#     from_address: info@tanmayvaij.com
+#     from_name: tanmayvaij
 
 feature_flags:
   use_continue_with_transitions: true
+  

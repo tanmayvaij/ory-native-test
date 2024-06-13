@@ -1,10 +1,10 @@
 version: "3.9"
 services:
-  postgres-authman:
+  postgres-tanmayvaij:
     image: postgres:9.6-alpine
     restart: unless-stopped
-    hostname: kratos-database-authman
-    container_name: kratos-database-authman
+    hostname: kratos-database-tanmayvaij
+    container_name: kratos-database-tanmayvaij
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_DB: ${DB_NAME}
@@ -15,12 +15,12 @@ services:
     ports:
       - "${DB_PORT}:5432"
 
-  kratos-migrate-authman:
+  kratos-migrate-tanmayvaij:
     image: oryd/kratos:v1.1.0
-    hostname: kratos-migrate-authman
-    container_name: kratos-migrate-authman
+    hostname: kratos-migrate-tanmayvaij
+    container_name: kratos-migrate-tanmayvaij
     depends_on:
-      - postgres-authman
+      - postgres-tanmayvaij
     environment:
       - DSN=postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}?sslmode=disable&max_conns=20&max_idle_conns=4
     volumes:
@@ -28,12 +28,12 @@ services:
     command: -c /etc/config/kratos/kratos.yml migrate sql -e --yes
     restart: "no"
 
-  kratos-authman:
+  kratos-tanmayvaij:
     image: oryd/kratos:v1.1.0
-    hostname: kratos-authman
-    container_name: kratos-authman
+    hostname: kratos-tanmayvaij
+    container_name: kratos-tanmayvaij
     depends_on:
-      - kratos-migrate-authman
+      - kratos-migrate-tanmayvaij
     environment:
       - DSN=postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:5432/${DB_NAME}?sslmode=disable&max_conns=20&max_idle_conns=4
     ports:
@@ -44,14 +44,14 @@ services:
     command: serve -c /etc/config/kratos/kratos.yml --dev --watch-courier --sqa-opt-out
     restart: unless-stopped
 
-  kratos-selfservice-ui-node-authman:
+  kratos-selfservice-ui-node-tanmayvaij:
     image: oryd/kratos-selfservice-ui-node:v1.0.0
-    hostname: kratos-selfservice-ui-node-authman
-    container_name: kratos-selfservice-ui-node-authman
+    hostname: kratos-selfservice-ui-node-tanmayvaij
+    container_name: kratos-selfservice-ui-node-tanmayvaij
     depends_on:
-      - kratos-migrate-authman
+      - kratos-migrate-tanmayvaij
     environment:
-      - KRATOS_PUBLIC_URL=http://kratos-authman:4433/
+      - KRATOS_PUBLIC_URL=http://kratos-tanmayvaij:4433/
       - KRATOS_BROWSER_URL=http://127.0.0.1:${KRATOS_EXPOSE_PORT}/
     ports:
       - ${KRATOS_UI_EXPOSE_PORT}:3000
@@ -63,4 +63,4 @@ volumes:
 
 networks:
   default:
-    name: kratos-authman-net
+    name: kratos-tanmayvaij-net
