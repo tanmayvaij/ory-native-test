@@ -52,7 +52,7 @@ const Recovery = () => {
         flow: flow.id,
         updateRecoveryFlowBody: {
           ...formValues!,
-          csrf_token: "",
+          csrf_token: undefined,
           method: "code",
         },
       })

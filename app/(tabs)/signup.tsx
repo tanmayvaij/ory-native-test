@@ -2,14 +2,11 @@ import { Button, StyleSheet, TextInput, View } from "react-native";
 import { kratosClient } from "@/components/kratosSdk";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
-import {
-  RegistrationFlow,
-  UpdateRegistrationFlowBody,
-} from "@ory/client";
+import { RegistrationFlow, UpdateRegistrationFlowBody } from "@ory/client";
 
 const SignUp = () => {
   const [flow, setFlow] = useState<RegistrationFlow>();
-  const [formValues, setFormValues] = useState<UpdateRegistrationFlowBody>({ });
+  const [formValues, setFormValues] = useState<UpdateRegistrationFlowBody>({});
 
   const initiateFlow = async () => {
     await kratosClient
@@ -46,11 +43,15 @@ const SignUp = () => {
     console.log(JSON.stringify(flow, null, 1));
 
     console.log(formValues);
-    
+
     kratosClient
       .updateRegistrationFlow({
         flow: flow.id,
-        updateRegistrationFlowBody: {...formValues!, method: "password", csrf_token: ""},
+        updateRegistrationFlowBody: {
+          ...formValues!,
+          method: "password",
+          csrf_token: "",
+        },
       })
       .then(({ data }) => {
         console.log("Registration successful", data);
@@ -73,7 +74,7 @@ const SignUp = () => {
             key={id}
             placeholder={meta.label?.text}
             onChangeText={(text) => handleInputChange(attributes.name, text)}
-            value={formValues[attributes.name] || ''}
+            value={formValues[attributes.name] || ""}
           />
         );
       })}
